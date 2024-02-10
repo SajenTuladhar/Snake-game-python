@@ -2,9 +2,9 @@ from tkinter import*
 import random
 
 #declaring constants for the game
-GAME_WIDTH=700
+GAME_WIDTH=1000
 GAME_HEIGHT=700
-SPEED=60
+SPEED=90 # the higher the speed the slower the snake moves
 SPACE_SIZE=50
 BODY_PARTS=2
 SNAKE_COLOR="PINK"
@@ -12,7 +12,7 @@ FOOD_COLOR="White"
 BG= "BLACK"
 
 class Snake:
-    def __init__(self) :
+    def __init__(self):
         self.body_size=BODY_PARTS
         self.coordinates=[]
         self.squares=[]
@@ -21,7 +21,7 @@ class Snake:
             self.coordinates.append([0,0])
 
         for x, y in self.coordinates:
-            square=canvas.create_rectangle(x,y,x+SPACE_SIZE,y+SPACE_SIZE,fill=SNAKE_COLOR,tag="snek")
+            square=canvas.create_rectangle(x,y,x+SPACE_SIZE,y+SPACE_SIZE,fill=SNAKE_COLOR,tag="snake")
             self.squares.append(square)
 class Food:
     def __init__(self):
@@ -58,6 +58,10 @@ def next_turn(snake,food):
         del snake.coordinates[-1]
         canvas.delete(snake.squares[-1])
         del snake.squares[-1]
+    
+    if check_collision(snake):
+        death()
+    else:
         window.after(SPEED, next_turn, snake,food)
 
 def change_direction(new_direction):
@@ -76,11 +80,26 @@ def change_direction(new_direction):
         if direction != "up":
             direction= new_direction
 
-def check_collision():
-    pass
+def check_collision(snake):
+    x, y = snake.coordinates[0]
+    #collison against the borders
+
+    if x < 0 or x >= GAME_WIDTH:
+        return True
+    elif y < 0 or y >= GAME_HEIGHT:
+        return True
+
+    #collison against the snake's body
+    for body_part in snake.coordinates[1:]:
+        if x == body_part[0] and y == body_part[1]:
+            return True
+
+    return False
 
 def death():
-    pass
+    canvas.delete(ALL)
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2,
+                       font=('consolas',70), text="GAME OVER", fill="red", tag="gameover")
 
 window=Tk()
 window.title("Snake game")
